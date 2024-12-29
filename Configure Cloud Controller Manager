@@ -1,0 +1,28 @@
+1. Clone the AWS Cloud Controller repository to the controller plane node where you have the Kubectl access.
+-------------------------------------------------------------------------
+
+git clone https://github.com/kubernetes/cloud-provider-aws.git
+
+=======================================================================
+
+2. Navigate to the base directory.It has all the kubernetes manifests for the cloud controller manager and the Kustomize file.
+3. Create the daemonset using the following command. -k is for Kustomize.
+---------------------------------------------------------------------------
+
+cd cloud-provider-aws/examples/existing-cluster/base
+
+kubectl create -k .
+==============================================================================\
+
+To verify the daemonset is running properly, use the following command.
+-------------------------------------------------------------------------
+
+kubectl get daemonset -n kube-system
+
+==========================================================================
+
+To ensure the CCM pod is running, use the following command.
+
+---------------------------------------------------------------------------
+kubectl get pods -n kube-system
+==============================================================================
