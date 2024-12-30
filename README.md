@@ -525,3 +525,94 @@ sudo systemctl restart kubelet
 By configuring both the control plane and worker nodes with the --cloud-provider=external flag, Kubernetes will interact with the specified external cloud provider, enabling features like load balancing, storage provisioning, and more.
 
 Note: Ensure that all nodes in your cluster are consistently configured to use the external cloud provider to avoid any discrepancies in behavior.
+
+To ensure the Cloud Conroller manager daemonset is running properly, use the following command:
+
+```
+kubectl get pods -n kube-system
+```
+### Provision of Load Balancer and Deployment of Java-app
+
+step-1 create a deployment.yaml file:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      containers:
+      - name: java-app
+        image: saravana2002/java-app:latest
+        ports:
+        - containerPort: 8080
+```
+Run the below command to create deployment and verify:
+
+```
+kubectl -f apply deployment.yaml
+kubeclt get deployments
+kubectl get pods -o wide
+```
+step-2 create a hpa.yaml file for HroizontalPadAutoscaler
+
+```
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: java-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: java-app-deployment
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+```
+
+Run the below command to create Auto-scaling and verify:
+
+```
+kubectl -f apply hpa.yaml
+kubeclt get hpa -o wide
+```
+Step-3 create service.yaml file for LoadBalancer service:
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-app-service
+spec:
+  selector:
+    app: java-app # Ensure this label matches your pod configuration
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80       # Port exposed externally
+      targetPort: 8080 # Port your application is listening on
+```
+Run the below command to create service and verify:
+
+```
+kubectl -f apply service.yaml
+kubeclt get svc -o wide
+```
+
+Now copy the dns from the output of the command ```kubeclt get svc -o wide``` and paste it in the browser to expose your java-app
+
