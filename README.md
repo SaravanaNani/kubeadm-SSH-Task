@@ -149,6 +149,91 @@ Instructions:
 Conclusion:
 Ensure that the IAM roles with the specified permissions are created and correctly attached to the controller and worker nodes. These roles are essential for enabling the Kubernetes components to interact seamlessly with AWS services such as EC2, ECR, and ELB, ensuring smooth operation and scalability of the cluster.
 
+## Step 3: Tag AWS Resources
+
+Tagging AWS resources is essential to configure the Cloud Controller Manager (CCM) in your Kubernetes cluster. By tagging resources, you can ensure that AWS resources, such as EC2 instances, VPCs, Subnets, and Security Groups, are properly associated with the correct cluster. This ensures that the right resources are cleaned up when the cluster is destroyed, preventing unintended changes to other resources.
+
+### Why Tag AWS Resources?
+
+For example, if your cluster uses an AWS Network Load Balancer (NLB) and the cluster is being destroyed, the NLB will be tagged and subsequently destroyed, avoiding any impact on other resources.
+
+### Finding the Cluster ID
+
+To tag AWS resources correctly, you will need the **Cluster ID**. To find your Cluster ID, use the following command:
+
+```bash
+kubectl config view
+```
+The output will look something like this:
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://172.31.21.29:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+```
+## Tagging AWS Resources
+
+Once you have the Cluster ID, you can tag the resources associated with your Kubernetes cluster to indicate ownership or shared usage.
+
+### 1. Single Cluster Management
+
+If a resource is only used by one cluster, you should tag it with the following key-value pair:
+
+- **Tag Key:** `kubernetes.io/cluster/<Cluster-ID>`
+- **Tag Value:** `owned`
+
+For example, if your Cluster ID is `kubernetes`, the tag would be:
+
+- **Tag Key:** `kubernetes.io/cluster/kubernetes`
+- **Tag Value:** `owned`
+
+### 2. Multiple Clusters Sharing Resources
+
+If a resource is shared across multiple clusters, use the following tag:
+
+- **Tag Key:** `kubernetes.io/cluster/<Cluster-ID>`
+- **Tag Value:** `shared`
+
+For example, if the resource is shared among multiple clusters, you would use:
+
+- **Tag Key:** `kubernetes.io/cluster/kubernetes`
+- **Tag Value:** `shared`
+
+### Resources to Tag
+
+Ensure that you add tags to the following AWS resources that are used by both the controller and worker nodes:
+
+- **VPC**
+- **Subnet**
+- **EC2 Instances**
+- **Security Groups**
+- **Elastic Load Balancers (NLB/ALB)**
+- **Elastic Block Store (EBS) Volumes**
+- **Elastic IPs (EIP)**
+
+By tagging these resources appropriately, you ensure that they are correctly managed and cleaned up when the associated cluster is terminated or modified.
+
+## Conclusion
+
+Properly tagging AWS resources is critical to the efficient operation and management of your Kubernetes cluster. By using the `kubernetes.io/cluster/<Cluster-ID>` tag with either the `owned` or `shared` value, you can effectively manage the resources associated with your cluster and ensure that only the necessary resources are deleted or modified when required.
+
+###
+
 ## Steps on the Master Node
 
 ### 1. SSH into the Master EC2 instance.
@@ -302,3 +387,36 @@ After completing the steps, your Kubernetes cluster should be up and running wit
 kubectl get nodes
 kubectl get pods -A
 ```
+###
+
+# Configure the Cloud Controller Manager
+
+To configure the AWS Cloud Controller Manager (CCM) for your Kubernetes cluster, follow the steps below.
+
+### 1. Clone the AWS Cloud Controller Repository
+
+Clone the AWS Cloud Provider repository to the controller plane node where you have `kubectl` access.
+
+```bash
+git clone https://github.com/kubernetes/cloud-provider-aws.git
+```
+2. Navigate to the Base Directory
+Once the repository is cloned, navigate to the base directory.
+This directory contains all the Kubernetes manifests for the cloud controller manager and the Kustomize file.
+
+```bash
+cd cloud-provider-aws/examples/existing-cluster/base
+```
+3. Create the DaemonSet
+Create the daemonset using the following command. The -k flag is used for Kustomize to apply the resources.
+
+```
+kubectl create -k .
+```
+4. Verify the DaemonSet is Running
+To ensure the daemonset is running properly, use the following command:
+
+```
+kubectl get pods -n kube-system
+```
+By following these steps, you will configure the Cloud Controller Manager to manage AWS resources in your Kubernetes cluster.
