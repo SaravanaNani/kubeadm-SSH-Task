@@ -227,3 +227,58 @@ systemctl restart kubelet
 
 This document covers essential **CKA** topics, including YAML examples and troubleshooting commands. Happy learning! 🚀
 
+# 6. Theoretical Knowledge Questions
+
+### 6.1 Kubernetes Basics
+
+What are the key components of the Kubernetes control plane?Answer: The control plane includes kube-apiserver, kube-controller-manager, kube-scheduler, etcd, and cloud-controller-manager (if applicable).
+
+What is the difference between a Deployment and a StatefulSet?Answer: A Deployment is used for stateless applications and manages replicas, whereas a StatefulSet is used for stateful applications and ensures unique, stable network identities for each pod.
+
+How does a ReplicaSet ensure high availability?Answer: It ensures the desired number of pod replicas are always running by creating new pods if any fail.
+
+What is the difference between kubectl apply and kubectl create?Answer: kubectl apply is used for declarative updates, while kubectl create is used for imperative creation of resources.
+
+### 6.2 Cluster Management
+
+Explain the role of kube-apiserver, kube-scheduler, and kube-controller-manager.Answer: kube-apiserver handles API requests, kube-scheduler assigns pods to nodes, and kube-controller-manager runs controllers to maintain cluster state.
+
+What happens during a kubeadm init command?Answer: It initializes the control plane, generates certificates, starts control plane components, and sets up the cluster configuration.
+
+How does Kubernetes handle leader election for HA control plane setups?Answer: Kubernetes uses etcd and leader election algorithms in kube-controller-manager to ensure only one leader is active at a time.
+
+What is the function of kubelet and kube-proxy?Answer: kubelet runs on nodes to ensure containers are running, while kube-proxy manages network rules for service communication.
+
+### 6.3 Networking
+
+What are the different types of Kubernetes services?Answer: ClusterIP, NodePort, LoadBalancer, and ExternalName.
+
+How does Kubernetes manage DNS resolution internally?Answer: Kubernetes uses CoreDNS to provide internal DNS resolution for services and pods.
+
+What is a NetworkPolicy, and how does it work?Answer: A NetworkPolicy controls pod communication using rules based on labels, namespaces, and IP blocks.
+
+What is the role of coredns in a Kubernetes cluster?Answer: It provides DNS resolution for service discovery within the cluster.
+
+### 6.4 Storage & Volumes
+
+What are the differences between Persistent Volumes (PVs) and Persistent Volume Claims (PVCs)?Answer: PVs are storage resources in a cluster, while PVCs are requests for storage by applications.
+
+How does dynamic volume provisioning work in Kubernetes?Answer: Kubernetes automatically provisions storage volumes based on PVC requests using storage classes.
+
+What are the different access modes for Persistent Volumes?Answer: ReadWriteOnce (RWO), ReadOnlyMany (ROX), ReadWriteMany (RWX).
+
+### 6.5 Security & Troubleshooting
+
+What are Kubernetes Role-Based Access Control (RBAC) roles?Answer: RBAC roles define permissions for users and groups to access resources in a Kubernetes cluster.
+
+How can you restrict a pod from running as a root user?Answer: Use PodSecurityPolicies or SecurityContext with runAsNonRoot: true.
+
+How do you troubleshoot a pod that is stuck in ContainerCreating state?Answer: Check pod events (kubectl describe pod), storage issues, or node status.
+
+What are taints and tolerations, and how do they affect scheduling?Answer: Taints prevent pods from running on a node unless a toleration allows it.
+
+
+This document covers essential CKA topics, including YAML examples, troubleshooting commands, and theoretical knowledge. Happy learning! 🚀
+
+
+
