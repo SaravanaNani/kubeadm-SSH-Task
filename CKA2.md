@@ -205,3 +205,59 @@ kubectl apply -f pvc.yaml
 
 These additions cover key topics needed for the exam. Let me know if you need further refinements! 🚀
 
+
+## **6. Additional Topics**  
+
+### **6.1 Pod Security Policies (PSP) & SecurityContext**  
+- Kubernetes deprecated PSP; instead, use SecurityContext and Admission Controllers.  
+- Example of SecurityContext:  
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: secure-pod
+  spec:
+    securityContext:
+      runAsUser: 1000
+      runAsNonRoot: true
+    containers:
+    - name: nginx
+      image: nginx
+      securityContext:
+        readOnlyRootFilesystem: true
+  ```  
+
+### **6.2 Ingress Controller & TLS Configuration**  
+- Set up Nginx Ingress Controller.  
+- Create an Ingress rule with TLS for HTTPS traffic.  
+
+### **6.3 Custom Resource Definitions (CRDs)**  
+- Define a CRD for custom resources in Kubernetes.  
+- Example of a CRD:  
+  ```yaml
+  apiVersion: apiextensions.k8s.io/v1
+  kind: CustomResourceDefinition
+  metadata:
+    name: crd-example
+  spec:
+    group: example.com
+    versions:
+    - name: v1
+      served: true
+      storage: true
+    scope: Namespaced
+    names:
+      plural: examples
+      singular: example
+      kind: Example
+  ```  
+
+### **6.4 Metrics Server & Horizontal Pod Autoscaling (HPA)**  
+- Enable Metrics Server for auto-scaling:  
+  ```sh
+  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  ```  
+- Create an HPA for a deployment:  
+  ```sh
+  kubectl autoscale deployment nginx-deployment --cpu-percent=50 --min=1 --max=10
+  ```
